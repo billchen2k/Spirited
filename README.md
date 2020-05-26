@@ -1,2 +1,3 @@
 # Spirited
- Transcribe piano audio to MIDI files.
+
+This is an APP to transcribe your piano recordings.

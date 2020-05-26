@@ -1,0 +1,127 @@
+<html lang="en">
+  <head>
+    <title>Spirited</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
+    <link id="favicon" rel="icon" href="static/favicon.ico" type="image/x-icon">
+    <link href="https://fonts.geekzu.org/css2?family=Overpass&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@5.3.45/css/materialdesignicons.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/loader.css">
+    <script src="js/app.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.8/FileSaver.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+    <script src="js/loaders.css.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.7.4/dist/tf.min.js"></script>
+<!--    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/13.8.21/Tone.js"></script>-->
+<!--    <script src="https://cdn.jsdelivr.net/npm/@magenta/music@^1.2"></script>-->
+    <script src="https://cdn.jsdelivr.net/npm/@magenta/music@1.15.0/dist/magentamusic.min.js"></script>
+
+  </head>
+  <body>
+    <div class="box">
+      <div class="top" id="box-top">
+        <div id="modelLoading">
+
+          <span>正在加载模型...</span>
+          <br />
+          <br />
+          <span class="ball-scale-ripple-multiple"><div></div><div></div><div></div></span>
+          <br/>
+          <br />
+          <span style="font-size: 0.75em">模型大小为 60 M, 下载需要一些时间。</span>
+        </div>
+        
+        <div id="modelReady" style="display: none">
+          <div id="buttons">
+            <label class="button" id="btnUpload" disabled>
+              <span class="text"><span class="mdi mdi-file-upload-outline"></span> 上传文件<input type="file" id="fileInput"></span></span>
+              <span class="loading"><span class="mdi mdi-google-assistant"></span> 转录中...</span>
+            </label>
+            <span>/</span>
+            <button class="button" id="btnRecord" disabled>
+              <span class="text"><span class="mdi mdi-microphone"></span> 录制音频</span>
+              <span class="loading"><span class="mdi mdi-google-assistant"></span> 转录中...</span>
+            </button>
+          </div>
+          <div id="recordingError" hidden>尝试录音的时候出现了一些错误，也许是你的设备没有麦克风或权限被拒绝。上传文件试试吧。</div>
+          <div id="iosError" hidden>很遗憾，本项目无法在 iOS 设备上运行。</div>
+        </div>  
+      </div>   
+      <div class="middle">
+        <div id="players" hidden>
+          <button class="button player active" onclick="setActivePlayer(event, false)" id="pianoBtn">大钢琴</button>
+          <button class="button player" onclick="setActivePlayer(event, true)">锯齿波合成器</button>
+        </div>
+          
+        <div id="transcribingMessage" hidden>
+          <div><span class='mdi mdi-music-clef-treble' style="font-size: 1.5em"></span></div>
+          <p>音频长度过长可能会暂时导致浏览器和系统卡顿，稍等片刻即可。</p>
+          <p>转录完成后，将会从 Google 服务器下载音色文件，请确保国际互联网连通顺畅。</p>
+          <p id="safariWarning" hidden>值得一提的是，你正在使用 Safari 浏览器。这大概率会花费更长时间。</p>
+          <p></p>
+          <span class="ball-scale-ripple-multiple"><div></div><div></div><div></div></span>
+
+        </div>
+        <div class="container" id="container" hidden>
+          <canvas id="canvas"></canvas>
+        </div>
+        
+        <div class="icon" id="playIcon" hidden >
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+            <path xmlns="http://www.w3.org/2000/svg" d="M8 5v14l11-7z"/>
+            <path xmlns="http://www.w3.org/2000/svg" d="M0 0h24v24H0z" fill="none"/>
+          </svg>
+
+        </div>
+        <div class="icon" id="pauseIcon" hidden>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+            <path xmlns="http://www.w3.org/2000/svg" d="M0 0h24v24H0z" fill="none"/>
+            <path xmlns="http://www.w3.org/2000/svg" d="M6 6h12v12H6z"/>
+          </svg>
+        </div>
+
+
+        <div id="resultButtons" style="text-align: center" hidden>
+          <div>
+            <b id="currentTime">0 s</b>
+            <input type="range" id="progressSlider" class="slider" min="0" max="0" step="0.1">
+            <b id="totalTime">0 s</b>
+          </div>
+          <span>
+            <button class="button" onclick="saveFile()" id="saveFileBtn" hidden><span class="mdi mdi-file-music-outline"></span> 保存录音</button>
+          </span>
+          <span>
+            <button class="button" onclick="saveMidi(event)" id="saveBtn" hidden>
+              <span class="mdi mdi-piano"></span> 保存 MIDI</button>
+          </span>
+        </div>
+
+        <div id="help">
+          <h1>🎹 Spirited</h1>
+          <p>我们总是会难以记住脑海里涌现出来的灵感。</p>
+          <p>使用 Google AI 实验室开发的 Magenta Music 中的 <a href="https://magenta.tensorflow.org/onsets-frames">Onsets and Frames</a> 模型，利用循环神经网络，可以将你弹出的钢琴录音识别转录为 MIDI 文件。在这里上传录音文件或录制你的演奏即可。你的灵感录音不再只是音频，还可以得到 MIDI 数据来方便地导入数字音频工作站（DAW）中处理。</p>
+          <p>推荐使用 Google Chrome 浏览器或其他基于 Chromium 内核的浏览器运行本项目。在 iOS 设备上与 Safari 浏览器可能会无法预料的结果。另外，由于依赖了大量 Google 的 CDN，嘿嘿。</p>
+          <p>项目的实现使用了 <a href="https://magenta.tensorflow.org/">Magenta.js</a> 和
+            <a href="https://www.tensorflow.org/js/">TensorFlow.js</a>。前端界面的实现主要使用了 <a href="https://www.materialdesignicons.com">Material Design Icons</a> ， <a href="https://fonts.goole.com">Google Fonts</a> ， <a href="https://github.com/ConnorAtherton/loaders.css">Loaders.css</a> 。本项目源代码已上传至  <a href="https://github.com/BillChen2K/Spirited">GitHub</a>。
+          </p>
+        </div>
+      </div>
+      <div class="bottom">
+        <div style="text-align: center; padding-bottom: 5px">
+          <div style="padding: 10px">&nbsp;Crafted with ❤️ by <a href="https://billc.io">Bill Chen</a>, East China Normal University.</div>
+          <div>2020.6, <a href="https://github.com/BillChen2K/Spirited">GitHub</a></div>
+        </div>
+      </div>
+
+    </div>
+    <script>
+     if (!window.MediaRecorder) {
+        document.write(decodeURI('%3Cscript src="js/polyfill.js">%3C/script>'))
+     }
+    </script>
+<!--  <script src="js/polyfill.js"></script>-->
+  </body>
+</html>
