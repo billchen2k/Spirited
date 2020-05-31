@@ -4,7 +4,7 @@ It’s always hard to remember the spirit flashed out from your mind.
 
 Transcribe solo piano audio into MIDI file with Spirited.
 
-Based on `magenta.js` and `tenserflow.js` by Google, with `Onset and Frame` model. Just upload your performance and it will turn it into midi file. Good for your music creation when you don’t have a digital keyboard by hand.
+Based on `magenta.js` and `tenserflow.js` by Google, with [`Onset and Frame`](https://magenta.tensorflow.org/onsets-frames) model. Just upload your performance and it will turn it into midi file. Good for your music creation when you don’t have a digital keyboard by hand.
 
 This works best on solo acoustic pianos. Chrome browser is recommended. Safari on macOS works as well. However, it won’t work on iOS devices no matter what browser you use.
 
@@ -21,8 +21,11 @@ This works best on solo acoustic pianos. Chrome browser is recommended. Safari o
 > 参考 / Reference:
 >
 > [https://magenta.github.io/magenta-js/music/](https://magenta.github.io/magenta-js/music/)
+> 
 > [https://glitch.com/edit/#!/piano-scribe](https://glitch.com/edit/#!/piano-scribe)
+> 
 > [https://magenta.github.io/magenta-js/music/demos/transcription.html](https://magenta.github.io/magenta-js/music/demos/transcription.html)
+> 
 > [https://magenta.github.io/magenta-js/music/demos/player.html](https://magenta.github.io/magenta-js/music/demos/player.html)
 
 
